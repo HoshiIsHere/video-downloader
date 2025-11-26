@@ -1,39 +1,28 @@
-async function startDownload() {
-  const url = document.getElementById("urlInput").value;
-  const resultBox = document.getElementById("resultBox");
-  const statusText = document.getElementById("statusText");
-  const downloadLink = document.getElementById("downloadLink");
+export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
 
-  if (!url.trim()) {
-    alert("Masukkan URL dulu, Bang!");
-    return;
-  }
-
-  resultBox.style.display = "block";
-  statusText.textContent = "Mengambil link download...";
+  const url = req.query.url;
+  if (!url) return res.json({ success: false, error: "URL tidak ada" });
 
   try {
-    // API Downloader yang stabil (server gratis + JSON valid)
+    // API downloader stabil (tidak butuh auth)
     const api = `https://ssyoutube.com/api/convert?url=${encodeURIComponent(url)}`;
 
-    const res = await fetch(api);
-    const data = await res.json();
+    const r = await fetch(api);
+    const data = await r.json();
 
-    if (!data || !data.url?.mp4) {
-      statusText.textContent = "Gagal mengambil link video.";
-      return;
+    const vid = data?.url?.mp4?.[0]?.url;
+
+    if (!vid) {
+      return res.json({ success: false, error: "Tidak ditemukan link video" });
     }
 
-    // mp4 kualitas tertinggi
-    const videoURL = data.url.mp4[0].url;
+    return res.json({
+      success: true,
+      video: vid
+    });
 
-    statusText.textContent = "Video siap di-download!";
-    downloadLink.href = videoURL;
-    downloadLink.download = "video.mp4";
-    downloadLink.style.display = "inline-block";
-
-  } catch (err) {
-    statusText.textContent = "Kesalahan saat mengambil video.";
-    console.error(err);
+  } catch (error) {
+    return res.json({ success: false, error: "Server error" });
   }
 }
