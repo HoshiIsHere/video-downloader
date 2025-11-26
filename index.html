@@ -1,146 +1,114 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Downloader Video</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
-
+  <title>Social Media Video Downloader</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
     body {
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #3f51b5, #1a237e);
       margin: 0;
-      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1a002e, #3b0066, #6a0dad);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      color: white;
+      color: #fff;
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 30px;
       width: 90%;
-      max-width: 480px;
+      max-width: 450px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 35px;
       border-radius: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
       text-align: center;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      animation: fadeIn 0.8s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(20px);} 
-      to {opacity: 1; transform: translateY(0);} 
     }
 
     h2 {
-      margin-top: 0;
+      margin-bottom: 15px;
       font-weight: 600;
-      font-size: 26px;
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 25px;
     }
 
     input {
       width: 100%;
       padding: 14px;
-      margin-top: 20px;
       border-radius: 12px;
       border: none;
-      font-size: 16px;
       outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 14px;
+      margin-bottom: 20px;
     }
 
     button {
       width: 100%;
       padding: 14px;
-      margin-top: 18px;
       border: none;
       border-radius: 12px;
-      background: #ffca28;
-      color: #111;
-      font-size: 17px;
+      background: #7d2ae8;
+      color: white;
+      font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: 0.25s;
-    }
-
-    button:hover {
-      background: #ffb300;
-    }
-
-    #result {
-      margin-top: 20px;
-    }
-
-    .link-btn {
-      display: block;
-      background: white;
-      color: #111;
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 10px;
-      text-decoration: none;
-      font-weight: 600;
       transition: 0.2s;
     }
 
-    .link-btn:hover {
-      background: #e0e0e0;
+    button:hover {
+      background: #9e42ff;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      display: none;
+    }
+
+    a.download-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 18px;
+      background: #a855f7;
+      border-radius: 10px;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+    }
+
+    a.download-btn:hover {
+      background: #c084fc;
     }
   </style>
 </head>
 <body>
-
   <div class="container">
-    <h2>Downloader Video Sosmed</h2>
-    <p>Masukkan link video dari TikTok, Instagram, YouTube, dll.</p>
+    <h2>Video Downloader</h2>
+    <p>Download video dari Instagram, TikTok, Facebook, dan lainnya tanpa watermark.</p>
 
-    <input id="url" placeholder="Tempel URL video di sini..." />
-    <button id="btn">Ambil Link Download</button>
+    <input type="text" id="urlInput" placeholder="Tempel URL video di sini..." />
 
-    <div id="result"></div>
+    <button onclick="startDownload()">Download</button>
+
+    <div class="result" id="resultBox">
+      <p id="statusText"></p>
+      <a id="downloadLink" class="download-btn" href="#" target="_blank">Download Video</a>
+    </div>
   </div>
 
-  <script>
-    document.getElementById("btn").onclick = async () => {
-      const url = document.getElementById("url").value.trim();
-      const result = document.getElementById("result");
-
-      if (!url) {
-        result.innerHTML = "<p>⚠️ Masukkan URL terlebih dahulu</p>";
-        return;
-      }
-
-      result.innerHTML = "⏳ Memproses...";
-
-      try {
-        const r = await fetch("/api/download?url=" + encodeURIComponent(url));
-        const j = await r.json();
-
-        if (j.error) {
-          result.innerHTML = `<p>❌ Error: ${j.error}</p>`;
-          return;
-        }
-
-        result.innerHTML = "<h3>Link Download:</h3>";
-        j.files.forEach(f => {
-          const a = document.createElement("a");
-          a.href = f.url;
-          a.target = "_blank";
-          a.className = "link-btn";
-          a.textContent = `${f.quality || "File"} • ${f.type || "Video"}`;
-          result.appendChild(a);
-        });
-
-      } catch (err) {
-        result.innerHTML = `<p>❌ Kesalahan: ${err.message}</p>`;
-      }
-    };
-  </script>
-
+  <script src="download.js"></script>
 </body>
 </html>
