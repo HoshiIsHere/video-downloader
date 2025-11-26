@@ -13,23 +13,27 @@ async function startDownload() {
   statusText.textContent = "Mengambil link download...";
 
   try {
-    // API bebas watermark (contoh: savefrom, snapinsta, snaptik, dll)
-    // Gunakan proxy API agar response tetap JSON valid
-    const response = await fetch(`https://api.akuari.my.id/downloader/all?link=${encodeURIComponent(url)}`);
+    // API Downloader yang stabil (server gratis + JSON valid)
+    const api = `https://ssyoutube.com/api/convert?url=${encodeURIComponent(url)}`;
 
-    const data = await response.json();
+    const res = await fetch(api);
+    const data = await res.json();
 
-    if (!data || !data.url) {
-      statusText.textContent = "Gagal mengambil link, coba URL lain!";
+    if (!data || !data.url?.mp4) {
+      statusText.textContent = "Gagal mengambil link video.";
       return;
     }
 
+    // mp4 kualitas tertinggi
+    const videoURL = data.url.mp4[0].url;
+
     statusText.textContent = "Video siap di-download!";
-    downloadLink.href = data.url;
+    downloadLink.href = videoURL;
+    downloadLink.download = "video.mp4";
     downloadLink.style.display = "inline-block";
 
   } catch (err) {
-    statusText.textContent = "Kesalahan: Tidak dapat mengambil video.";
+    statusText.textContent = "Kesalahan saat mengambil video.";
     console.error(err);
   }
 }
