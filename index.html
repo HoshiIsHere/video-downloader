@@ -1,58 +1,146 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Downloader Video Sosmed</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Downloader Video</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+
   <style>
-    body{font-family:Arial;margin:30px;text-align:center}
-    input{width:80%;padding:10px;font-size:16px}
-    button{padding:10px 18px;margin-top:10px;font-size:16px}
-    #result{margin-top:20px}
-    a.download-link{display:inline-block;margin:8px;padding:8px 12px;border-radius:6px;text-decoration:none;border:1px solid #ccc}
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #3f51b5, #1a237e);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      width: 90%;
+      max-width: 480px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);} 
+      to {opacity: 1; transform: translateY(0);} 
+    }
+
+    h2 {
+      margin-top: 0;
+      font-weight: 600;
+      font-size: 26px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 18px;
+      border: none;
+      border-radius: 12px;
+      background: #ffca28;
+      color: #111;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    button:hover {
+      background: #ffb300;
+    }
+
+    #result {
+      margin-top: 20px;
+    }
+
+    .link-btn {
+      display: block;
+      background: white;
+      color: #111;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .link-btn:hover {
+      background: #e0e0e0;
+    }
   </style>
 </head>
 <body>
-  <h2>Downloader Video Legal</h2>
-  <p>Tempel link video (TikTok, Instagram, YouTube, dsb).</p>
 
-  <input id="url" placeholder="Masukkan URL video..." />
-  <br/>
-  <button id="btn">Ambil link ⬇️</button>
+  <div class="container">
+    <h2>Downloader Video Sosmed</h2>
+    <p>Masukkan link video dari TikTok, Instagram, YouTube, dll.</p>
 
-  <div id="result"></div>
+    <input id="url" placeholder="Tempel URL video di sini..." />
+    <button id="btn">Ambil Link Download</button>
+
+    <div id="result"></div>
+  </div>
 
   <script>
-    document.getElementById('btn').onclick = async () => {
-      const url = document.getElementById('url').value.trim();
-      const result = document.getElementById('result');
-      result.innerHTML = 'Memproses...';
+    document.getElementById("btn").onclick = async () => {
+      const url = document.getElementById("url").value.trim();
+      const result = document.getElementById("result");
 
-      if (!url) { result.innerHTML = 'Masukkan URL dulu ya.'; return; }
+      if (!url) {
+        result.innerHTML = "<p>⚠️ Masukkan URL terlebih dahulu</p>";
+        return;
+      }
+
+      result.innerHTML = "⏳ Memproses...";
 
       try {
-        const r = await fetch('/api/download?url=' + encodeURIComponent(url));
+        const r = await fetch("/api/download?url=" + encodeURIComponent(url));
         const j = await r.json();
 
         if (j.error) {
-          result.innerHTML = '<b>Error:</b> ' + j.error;
+          result.innerHTML = `<p>❌ Error: ${j.error}</p>`;
           return;
         }
 
-        result.innerHTML = '<h4>Download:</h4>';
+        result.innerHTML = "<h3>Link Download:</h3>";
         j.files.forEach(f => {
-          const a = document.createElement('a');
+          const a = document.createElement("a");
           a.href = f.url;
-          a.target = '_blank';
-          a.className = 'download-link';
-          a.textContent = (f.quality || 'file') + ' • ' + (f.type || '');
+          a.target = "_blank";
+          a.className = "link-btn";
+          a.textContent = `${f.quality || "File"} • ${f.type || "Video"}`;
           result.appendChild(a);
         });
 
       } catch (err) {
-        result.innerHTML = 'Terjadi kesalahan: ' + err.message;
+        result.innerHTML = `<p>❌ Kesalahan: ${err.message}</p>`;
       }
     };
   </script>
+
 </body>
 </html>
