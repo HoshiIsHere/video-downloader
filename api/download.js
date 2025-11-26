@@ -5,13 +5,17 @@ export default async function handler(req, res) {
   if (!url) return res.json({ success: false, error: "URL tidak ada" });
 
   try {
-    // API downloader stabil (tidak butuh auth)
-    const api = `https://ssyoutube.com/api/convert?url=${encodeURIComponent(url)}`;
+    const api = `https://api.akuari.my.id/downloader?link=${encodeURIComponent(url)}`;
 
     const r = await fetch(api);
     const data = await r.json();
 
-    const vid = data?.url?.mp4?.[0]?.url;
+    // format baru: data.url bisa dalam bentuk array atau string
+    const vid =
+      data?.url?.[0]?.url ||
+      data?.url ||
+      data?.result ||
+      null;
 
     if (!vid) {
       return res.json({ success: false, error: "Tidak ditemukan link video" });
@@ -19,7 +23,7 @@ export default async function handler(req, res) {
 
     return res.json({
       success: true,
-      video: vid
+      video: vid,
     });
 
   } catch (error) {
