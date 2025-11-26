@@ -1,27 +1,35 @@
-// api/download.js (untuk Vercel serverless)
-const fetch = require('node-fetch');
+async function startDownload() {
+  const url = document.getElementById("urlInput").value;
+  const resultBox = document.getElementById("resultBox");
+  const statusText = document.getElementById("statusText");
+  const downloadLink = document.getElementById("downloadLink");
 
-module.exports = async (req, res) => {
-  const url = req.query.url || (req.body && req.body.url);
-  if (!url) return res.status(400).json({ error: 'Missing url param' });
+  if (!url.trim()) {
+    alert("Masukkan URL dulu, Bang!");
+    return;
+  }
+
+  resultBox.style.display = "block";
+  statusText.textContent = "Mengambil link download...";
 
   try {
-    // API downloader publik (legal)
-    const apiEndpoint = 'https://ytdlapi.xyz/api?url=' + encodeURIComponent(url);
+    // API bebas watermark (contoh: savefrom, snapinsta, snaptik, dll)
+    // Gunakan proxy API agar response tetap JSON valid
+    const response = await fetch(`https://api.akuari.my.id/downloader/all?link=${encodeURIComponent(url)}`);
 
-    const r = await fetch(apiEndpoint);
-    if (!r.ok) return res.status(500).json({ error: 'API pihak ketiga error' });
+    const data = await response.json();
 
-    const data = await r.json();
+    if (!data || !data.url) {
+      statusText.textContent = "Gagal mengambil link, coba URL lain!";
+      return;
+    }
 
-    const files = (data && data.files)
-      ? data.files
-      : [{ url: data.download || data.link, quality: data.quality || 'default', type: data.type || '' }];
-
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.json({ files });
+    statusText.textContent = "Video siap di-download!";
+    downloadLink.href = data.url;
+    downloadLink.style.display = "inline-block";
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    statusText.textContent = "Kesalahan: Tidak dapat mengambil video.";
+    console.error(err);
   }
-};
+}
